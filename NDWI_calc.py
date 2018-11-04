@@ -57,10 +57,10 @@ def calc_ndwi(Green, NIR, QA, NDWI_empty):
 def ndwi_mask(NDWI,pix_thresh=0.15):
     valid_pixels = (NDWI != -9999) & (NDWI >= pix_thresh)
 
-    NDWI_mask= np.empty_like(NDWI, np.float64)
+    NDWI_mask= np.empty_like(NDWI, np.uint8)
     NDWI_mask[:] = 0
 
-    NDWI = NDWI[valid_pixels].astype(np.float64)
+    NDWI = NDWI[valid_pixels].astype(np.uint8)
 
     NDWI_mask[valid_pixels] = 1
 
@@ -103,27 +103,27 @@ def mask_existance(rpjected_fn):
         existance = False
     return existance
 
-def mask_create(rpjected_fn, tile_fn):
-
-    #hard coding maskdir Can get chnages if need be
-    mask_dir = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/GIMP_masks/Landsat_Masks/'
-
-    path_row = rpjected_fn.split('/')[-1].split('_')[2]
-    mask_fn = mask_dir + 'GIMP_LS_' + path_row + '.tif'
-    shp_fn = mask_dir + 'GIMP_LS_' + path_row + '.shp'
-    # data = gdal.Open(rpjected_fn, GA_ReadOnly)
-    # geoTransform = data.GetGeoTransform()
-    # minx = geoTransform[0]
-    # maxy = geoTransform[3]
-    # maxx = minx + geoTransform[1] * data.RasterXSize
-    # miny = maxy + geoTransform[5] * data.RasterYSize
-    # clip_cmd = 'gdal_translate -projwin ' + ' '.join([str(x) for x in [minx, maxy, maxx, miny]]) + ' -of GTiff ' + tile_fn + ' ' + mask_fn
-    shp_cmd = 'gdaltindex ' + shp_fn + ' ' + rpjected_fn
-    clip_cmd = 'gdalwarp -cutline ' + shp_fn + ' -crop_to_cutline ' + tile_fn + ' ' + mask_fn
-    subprocess.call(shp_cmd,shell=True)
-    subprocess.call(clip_cmd, shell=True)
-    #print(' {} \n'.format(clip_cmd))
-    return mask_fn
+# def mask_create(rpjected_fn, tile_fn):
+#
+#     #hard coding maskdir Can get chnages if need be
+#     mask_dir = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/GIMP_masks/Landsat_Masks/'
+#
+#     path_row = rpjected_fn.split('/')[-1].split('_')[2]
+#     mask_fn = mask_dir + 'GIMP_LS_' + path_row + '.tif'
+#     shp_fn = mask_dir + 'GIMP_LS_' + path_row + '.shp'
+#     # data = gdal.Open(rpjected_fn, GA_ReadOnly)
+#     # geoTransform = data.GetGeoTransform()
+#     # minx = geoTransform[0]
+#     # maxy = geoTransform[3]
+#     # maxx = minx + geoTransform[1] * data.RasterXSize
+#     # miny = maxy + geoTransform[5] * data.RasterYSize
+#     # clip_cmd = 'gdal_translate -projwin ' + ' '.join([str(x) for x in [minx, maxy, maxx, miny]]) + ' -of GTiff ' + tile_fn + ' ' + mask_fn
+#     shp_cmd = 'gdaltindex ' + shp_fn + ' ' + rpjected_fn
+#     clip_cmd = 'gdalwarp -cutline ' + shp_fn + ' -crop_to_cutline ' + tile_fn + ' ' + mask_fn
+#     subprocess.call(shp_cmd,shell=True)
+#     subprocess.call(clip_cmd, shell=True)
+#     #print(' {} \n'.format(clip_cmd))
+#     return mask_fn
 
 def read_n_write(green_fn, nir_fn, qa_fn, tile_fn, pix_thres=0.15, t_srs=3413, x_block_size = 256, y_block_size = 256):
 
@@ -142,11 +142,11 @@ def read_n_write(green_fn, nir_fn, qa_fn, tile_fn, pix_thres=0.15, t_srs=3413, x
         qa_rpject = reproject(qa_fn, t_srs)
 
         #only test for mask / make mask once aka. only check for green
-        mask_check = mask_existance(green_rpjct)
-
-        if mask_check == False:
-            test_mask = mask_create(green_rpjct, tile_fn)
-            print(test_mask)
+        # mask_check = mask_existance(green_rpjct)
+        #
+        # if mask_check == False:
+        #     test_mask = mask_create(green_rpjct, tile_fn)
+        #     print(test_mask)
 
         # green_ds = gdal.Open(green_rpjct)
         # nir_ds = gdal.Open(nir_rpject)
@@ -276,7 +276,7 @@ def main():
                 for i,band in enumerate(bands):
                     if band.endswith('B3.TIF') == True:
                         green_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]
-                    elif band.endswith('B5.TIF') == True:
+                    elif band.endswith('B6.TIF') == True:
                         nir_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]
                     elif band.endswith('BQA.TIF') == True:
                         qa_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]
