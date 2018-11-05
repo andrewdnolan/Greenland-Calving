@@ -89,7 +89,7 @@ def NDWI_npmask (NDWI_array, pix_thres):
 #         with rasterio.open(mask_fn, 'w', driver = 'GTiff', height = thresh_array.shape[0], width = thresh_array.shape[1], count = 1, dtype = rasterio.uint8, crs='EPSG:3413', transform = rasterio.windows.transform(sub_window, src.transform)) as dst:
 #             dst.write(thresh_array, 1)
 #
-#     pß)
+#  
 #
 # area_df = pd.DataFrame({'HM':hm_mask_areas}, index = thresh_parm_list)
 
