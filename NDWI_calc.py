@@ -276,7 +276,7 @@ def main():
                 for i,band in enumerate(bands):
                     if band.endswith('B3.TIF') == True:
                         green_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]
-                    elif band.endswith('B6.TIF') == True:
+                    elif band.endswith('B5.TIF') == True:
                         nir_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]
                     elif band.endswith('BQA.TIF') == True:
                         qa_fn = cwd + '/' + root + '/' + dn + '/' + bands[i]

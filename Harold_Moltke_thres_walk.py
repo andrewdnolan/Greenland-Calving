@@ -23,75 +23,75 @@ def NDWI_npmask (NDWI_array, pix_thres):
 
 #http://karthur.org/2015/clipping-rasters-in-python.html
 
-# ######################### Walk through for Harold Moltke ######################
-# hm_dir = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/Harold_Moltke/Bulk_Order_948864/Landsat_8_OLI_TIRS_C1_Level-1/LC08_L1TP_031005_20130827_20170502_01_T1'
-# HM_GIMP = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/GIMP_masks/GimpIceMask_30m_tile0_4_v1.1_PS.tif'
-#
-# bands = os.listdir(hm_dir)
-# for i,band in enumerate(bands):
-#     if band.endswith('B3_30PS.TIF') == True:
-#         hm_g_fn = hm_dir + '/' + bands[i]
-#     elif band.endswith('B5_30PS.TIF') == True:
-#         hm_nit_fn = hm_dir + '/' + bands[i]
-#     # elif band.endswith('BQA_30PS.TIF') == True:
-#     #     qa_fn = hm_dir + '/' + bands[i]
-#
-# hm_interesction = interection(hm_g_fn, HM_GIMP)
-#
-# with rasterio.open(hm_g_fn) as src:
-#     sub_window = src.window(*hm_interesction, precision = 15)
-#     hm_g_bounds = src.bounds
-#     hm_g = src.read(1, window = sub_window)
-#
-# with rasterio.open(hm_nit_fn) as src:
-#     sub_window = src.window(*hm_interesction, precision = 15)
-#     hm_nir= src.read(1, window = (sub_window))
-#
-# # with rasterio.open(qa_fn) as src:
-# #     sub_window = src.window(*hm_interesction)
-# #     qa = src.read(1, window = sub_window)
-#
-# with rasterio.open(HM_GIMP) as src:
-#     sub_window = src.window(*hm_interesction, precision = 15)
-#     hm_GIMP_bounds = src.bounds
-#     hm_gimp_trans = src.transform
-#     GIMP_mask = src.read(1, window = sub_window)
-#
-# # if hm_g_bounds != hm_GIMP_bounds:
-# #     sys.exit('Need to check source rasters. Mask and Landsat Scene do not align Properly')
-#
-# hm_g_m = ma.array(hm_g[:GIMP_mask.shape[0],:GIMP_mask.shape[1]], mask = (GIMP_mask == 0), dtype =np.float64)
-# hm_g_m = ma.array(hm_g_m, mask = (1 >= hm_g_m), dtype =np.float64)
-# #hm_g= hm_g_m.filled(fill_value=-9999)
-#
-# hm_nir_m = ma.array(hm_nir[:GIMP_mask.shape[0],:GIMP_mask.shape[1]], mask = (GIMP_mask == 0), dtype =np.float64)
-# hm_nir_m = ma.array(hm_nir_m, mask = (1 >= hm_nir_m), dtype =np.float64)
-# #hm_nir= hm_nir_m.filled(fill_value=-9999)
-#
-# thresh_parm_list = [i / 100.0 for i in range(0, 105, 5)]
-#
-# hm_ndwi = NDWI_calc(hm_g_m, hm_nir_m)
-# hm_ndwi_masks = []
-# hm_mask_areas = []
-#
-# for i in thresh_parm_list:
-#     thresh_array = NDWI_npmask(hm_ndwi, i)
-#     thresh_unique = np.unique(thresh_array, return_counts=True)
-#     hm_ndwi_masks.append(thresh_array)
-#     if len(thresh_unique[0]) != 2:
-#         if thresh_unique[0][0] == 0:
-#             area = 0
-#             hm_mask_areas.append(area)
-#     else:
-#         area = (np.unique(thresh_array, return_counts=True)[1][1] * 30.0 * 30.0) / (1000.0**2)
-#         hm_mask_areas.append(area)
-#         mask_fn = '{}/HM_{}_thresh.tif'.format(hm_dir, i)
-#         with rasterio.open(mask_fn, 'w', driver = 'GTiff', height = thresh_array.shape[0], width = thresh_array.shape[1], count = 1, dtype = rasterio.uint8, crs='EPSG:3413', transform = rasterio.windows.transform(sub_window, src.transform)) as dst:
-#             dst.write(thresh_array, 1)
-#
-#  
-#
-# area_df = pd.DataFrame({'HM':hm_mask_areas}, index = thresh_parm_list)
+######################### Walk through for Harold Moltke ######################
+hm_dir = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/Harold_Moltke/Bulk_Order_948864/Landsat_8_OLI_TIRS_C1_Level-1/LC08_L1TP_031005_20130827_20170502_01_T1'
+HM_GIMP = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/GIMP_masks/GimpIceMask_30m_tile0_4_v1.1_PS.tif'
+
+bands = os.listdir(hm_dir)
+for i,band in enumerate(bands):
+    if band.endswith('B3_30PS.TIF') == True:
+        hm_g_fn = hm_dir + '/' + bands[i]
+    elif band.endswith('B5_30PS.TIF') == True:
+        hm_nit_fn = hm_dir + '/' + bands[i]
+    # elif band.endswith('BQA_30PS.TIF') == True:
+    #     qa_fn = hm_dir + '/' + bands[i]
+
+hm_interesction = interection(hm_g_fn, HM_GIMP)
+
+with rasterio.open(hm_g_fn) as src:
+    sub_window = src.window(*hm_interesction, precision = 15)
+    hm_g_bounds = src.bounds
+    hm_g = src.read(1, window = sub_window)
+
+with rasterio.open(hm_nit_fn) as src:
+    sub_window = src.window(*hm_interesction, precision = 15)
+    hm_nir= src.read(1, window = (sub_window))
+
+# with rasterio.open(qa_fn) as src:
+#     sub_window = src.window(*hm_interesction)
+#     qa = src.read(1, window = sub_window)
+
+with rasterio.open(HM_GIMP) as src:
+    sub_window = src.window(*hm_interesction, precision = 15)
+    hm_GIMP_bounds = src.bounds
+    hm_gimp_trans = src.transform
+    GIMP_mask = src.read(1, window = sub_window)
+
+# if hm_g_bounds != hm_GIMP_bounds:
+#     sys.exit('Need to check source rasters. Mask and Landsat Scene do not align Properly')
+
+hm_g_m = ma.array(hm_g[:GIMP_mask.shape[0],:GIMP_mask.shape[1]], mask = (GIMP_mask == 0), dtype =np.float64)
+hm_g_m = ma.array(hm_g_m, mask = (1 >= hm_g_m), dtype =np.float64)
+#hm_g= hm_g_m.filled(fill_value=-9999)
+
+hm_nir_m = ma.array(hm_nir[:GIMP_mask.shape[0],:GIMP_mask.shape[1]], mask = (GIMP_mask == 0), dtype =np.float64)
+hm_nir_m = ma.array(hm_nir_m, mask = (1 >= hm_nir_m), dtype =np.float64)
+#hm_nir= hm_nir_m.filled(fill_value=-9999)
+
+thresh_parm_list = [i / 100.0 for i in range(0, 105, 5)]
+
+hm_ndwi = NDWI_calc(hm_g_m, hm_nir_m)
+hm_ndwi_masks = []
+hm_mask_areas = []
+
+for i in thresh_parm_list:
+    thresh_array = NDWI_npmask(hm_ndwi, i)
+    thresh_unique = np.unique(thresh_array, return_counts=True)
+    hm_ndwi_masks.append(thresh_array)
+    if len(thresh_unique[0]) != 2:
+        if thresh_unique[0][0] == 0:
+            area = 0
+            hm_mask_areas.append(area)
+    else:
+        area = (np.unique(thresh_array, return_counts=True)[1][1] * 30.0 * 30.0) / (1000.0**2)
+        hm_mask_areas.append(area)
+        mask_fn = '{}/HM_{}_thresh.tif'.format(hm_dir, i)
+        with rasterio.open(mask_fn, 'w', driver = 'GTiff', height = thresh_array.shape[0], width = thresh_array.shape[1], count = 1, dtype = rasterio.uint8, crs='EPSG:3413', transform = rasterio.windows.transform(sub_window, src.transform)) as dst:
+            dst.write(thresh_array, 1)
+
+
+
+area_df = pd.DataFrame({'HM':hm_mask_areas}, index = thresh_parm_list)
 
 
 # ################ Upernavik N / S walk through ################################

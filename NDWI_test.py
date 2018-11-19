@@ -8,18 +8,33 @@
 #           - could try to parallelize it through mutli proccess
 #               - if i try to multi thread it proabably will run in to GIL errors pretty quickly
 ##########################################################################################################
-import osr
-import gdal
-import subprocess
-import numpy as np
-from NDWI_Func_block_io import *
-import matplotlib.pyplot as plt
+import os
+os.chdir('/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/NDWI_Func')
+from NDWI_calc_v2 import *
 
-green_fn  = '/Users/glaciologygroup/Desktop/NDWI_Test/Bulk_Order_931485/Landsat_8_OLI_TIRS_C1_Level-1/LC08_L1TP_009011_20180730_20180730_01_RT/LC08_L1TP_009011_20180730_20180730_01_RT_B3.TIF'
-nir_fn = '/Users/glaciologygroup/Desktop/NDWI_Test/Bulk_Order_931485/Landsat_8_OLI_TIRS_C1_Level-1/LC08_L1TP_009011_20180730_20180730_01_RT/LC08_L1TP_009011_20180730_20180730_01_RT_B5.TIF'
-qa_fn = '/Users/glaciologygroup/Desktop/NDWI_Test/Bulk_Order_931485/Landsat_8_OLI_TIRS_C1_Level-1/LC08_L1TP_009011_20180730_20180730_01_RT/LC08_L1TP_009011_20180730_20180730_01_RT_BQA.TIF'
+src_dir = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/thresh_test/LC08_L1TP_017008_20140828_20170420_01_T1'
+gimp_mask = '/Users/glaciologygroup/Greenland_Calving/Landsat_NDWI/GIMP_masks/GimpIceMask_30m_tile1_3_v1.1_PS.tif'
 
-whole_array = read_n_write(green_fn, nir_fn, qa_fn, t_srs=3413)
-plt.imshow(whole_array, clim=(0,1), cmap = 'bwr')
-plt.colorbar()
-plt.show()
+
+for band in os.listdir(src_dir):
+    if band.endswith('B3.TIF') or band.endswith('B5.TIF'):
+        TOA_corc(src_dir + '/' + band)
+for band in os.listdir(src_dir):
+    if band.endswith('TOA_B3.TIF') or band.endswith('TOA_B5.TIF'):
+        reproject(src_dir + '/' + band)
+
+green, nir, GIMP, src_att = read_raster(src_dir, gimp_mask)
+
+row_col = inner_bounds(green, GIMP)
+
+g_m = ma.array(green[:row_col[0],:row_col[1]], mask = (GIMP == 0), dtype =np.float64)
+g_m = ma.array(g_m, mask = (1 >= g_m), dtype =np.float64)
+
+nir_m = ma.array(nir[:row_col[0],:row_col[1]], mask = (GIMP == 0), dtype =np.float64)
+nir_m = ma.array(nir_m, mask = (1 >= nir_m), dtype =np.float64)
+
+ndwi_array = NDWI_calc(g_m, nir_m)
+
+ndwi_m_array = NDWI_npmask(ndwi_array, 0.25)
+
+write_mask(ndwi_m_array, src_dir, 0.25, src_att)
